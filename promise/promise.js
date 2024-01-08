@@ -16,41 +16,42 @@ function updateLastUserActivityTime() {
   });
 }
 
-function createPost(post) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
+async function createPost(post) {
+  return new Promise(async (resolve) => {
+    setTimeout(async () => {
       Posts.push({ title: post });
-      updateLastUserActivityTime().then((lastActiveTime) => {
-        resolve(lastActiveTime);
-      });
+      const lastActiveTime = await updateLastUserActivityTime();
+      resolve(lastActiveTime);
     }, 1000);
   });
 }
 
-function deletePost() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
+async function deletePost() {
+  return new Promise(async (resolve) => {
+    setTimeout(async () => {
       Posts.pop();
       resolve();
     }, 1000);
   });
 }
 
-Promise.all([
-  createPost("POST3"),
-  updateLastUserActivityTime()
-])
-  .then(([lastActiveTime]) => {
+(async () => {
+  try {
+    const [lastActiveTime] = await Promise.all([
+      createPost("POST3"),
+      updateLastUserActivityTime(),
+    ]);
+
     console.log(`Posts and last activity time after creation:`);
     getPost();
     console.log(`Last Activity Time: ${lastActiveTime}`);
-    return deletePost();
-  })
-  .then(() => {
+
+    await deletePost();
+
     console.log("Post deleted successfully.");
     console.log("Remaining Posts:");
     getPost();
-  })
-  .catch((error) => {
+  } catch (error) {
     console.error(`Error: ${error}`);
-  });
+  }
+})();
